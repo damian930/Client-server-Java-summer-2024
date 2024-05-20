@@ -1,7 +1,7 @@
 package org.example;
 
-import java.io.BufferedReader;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Packet {
     private final byte bMagic;    // start of Pocket (13h == 19)
@@ -9,20 +9,57 @@ public class Packet {
     private final long bPktId;    // message number
     private final int wLen;       // length of the message
     private final short wCrc_1;   // data integrity checker 1
-    private final String bMsq;    // message
+    private final Message bMsq;    // message
     private final short wCrc_2;   // data integrity checker 2
-    private static long message_counter = 0;
 
+    private static long message_counter = 1;
     private static final int[] table = fill_table();
 
     Packet(Message message, byte client_application_number) {
         this.bMagic = 19;
         this.bSrc = client_application_number;
         this.bPktId = Packet.message_counter++;
-        this.wLen = message.getMessage().length();
+        this.wLen = message.getBytes().length;
         this.wCrc_1 = create_wCrc_1();
-        this.bMsq = message.getMessage();
+        this.bMsq = message;
         this.wCrc_2 = create_wCrc_2();
+    }
+
+    private short create_wCrc_1() {
+        byte[] byte_arr = new byte[Byte.BYTES * 2 + Long.BYTES + Integer.BYTES];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
+        byteBuffer.put(this.bMagic).put(this.bSrc)
+                .putLong(this.bPktId).putInt(this.wLen);
+        return convert_to_crc16(byte_arr);
+    }
+
+    private short create_wCrc_2() {
+        byte[] byte_arr = new byte[this.bMsq.getBytes().length];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
+        byteBuffer.put(this.bMsq.getBytes());
+        return convert_to_crc16(byte_arr);
+    }
+
+    public static short convert_to_crc16(byte[] byte_arr) {
+        int crc = 0x0000;
+        for (byte b : byte_arr) {
+            crc = (crc >>> 8) ^ table[(crc ^ b) & 0xff];
+        }
+        return (short)crc;
+    }
+
+    public byte[] getBytes() {
+        byte[] byte_arr = new byte[
+                Byte.BYTES * 2 + Long.BYTES +
+                Integer.BYTES + Short.BYTES +
+                this.bMsq.getBytes().length + Short.BYTES
+                ];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
+        byteBuffer.put(this.bMagic).put(this.bSrc)
+                .putLong(this.bPktId).putInt(this.wLen)
+                .putShort(this.wCrc_1).put(this.bMsq.getBytes())
+                .putShort(this.wCrc_2);
+        return byte_arr;
     }
 
     private static int[] fill_table() {
@@ -60,42 +97,5 @@ public class Packet {
                 0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
                 0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
         };
-    }
-
-    public int convert_to_crc16(byte[] byte_arr) {
-        int crc = 0x0000;
-        for (int i=0; i<byte_arr.length; i++) {
-            crc = (crc >>> 8) ^ table[(crc ^ byte_arr[i]) & 0xff];
-        }
-        return crc;
-    }
-
-    private short create_wCrc_1() {
-        byte[] byte_arr = new byte[Byte.BYTES * 2 + Long.BYTES + Integer.BYTES];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
-        byteBuffer.put(this.bMagic).put(this.bSrc)
-                .putLong(this.bPktId).putInt(this.wLen);
-        return (short) convert_to_crc16(byte_arr);
-    }
-
-    private short create_wCrc_2() {
-        byte[] byte_arr = new byte[this.bMsq.getBytes().length];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
-        byteBuffer.put(this.bMsq.getBytes());
-        return (short) convert_to_crc16(byte_arr);
-    }
-
-    public byte[] getBytes() {
-        byte[] byte_arr = new byte[
-                Byte.BYTES * 2 + Long.BYTES +
-                Integer.BYTES + Short.BYTES +
-                this.bMsq.getBytes().length + Short.BYTES
-                ];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
-        byteBuffer.put(this.bMagic).put(this.bSrc)
-                .putLong(this.bPktId).putInt(this.wLen)
-                .putShort(this.wCrc_1).put(this.bMsq.getBytes())
-                .putShort(this.wCrc_2);
-        return byte_arr;
     }
 }

@@ -1,18 +1,50 @@
 package org.example;
 
 public class App {
-    public static void main( String[] args ) {
-        /*Message m1 = new Message(1, 14754, "get after it");
-        System.out.println(Arrays.toString(m1.getBytes()));
-        byte[] arr = {0, 0, 57, -94};
-        ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
-        int n = wrapped.getInt();
-        System.out.println(n);*/
+    public static void main( String[] args ) throws Exception {
+        Sender s = new Sender();
+        Receiver r = new Receiver();
+        Message m;
 
-        Message m2 = new Message(2, 3001, "testing functions");
-        Packet p1 = new Packet(m2, (byte)2);
-        Receiver r1 = new Receiver();
-        r1.receive_packet(p1);
+        s.setReceiversKey(r.getPublicKey());
+        {   // valid packet
+            s.create_packet(1, 3, "flopper dies way back in season 2", (byte) 9);
+            r.receive_packet(s.send_packet());
+            m = r.getReceived_message();
+
+            System.out.println("Received:");
+            System.out.println("\tCommand type: " + m.getcType());
+            System.out.println("\tUser Id: " + m.getbUserId());
+            System.out.println("\tText: " + new String(m.getText()));
+        }
+
+        System.out.println('\n');
+
+        {   // valid packet
+            s.create_packet(5, 65, "when i lost my g pro i was really sad(", (byte) 103);
+            r.receive_packet(s.send_packet());
+            m = r.getReceived_message();
+
+            System.out.println("Received:");
+            System.out.println("\tCommand type: " + m.getcType());
+            System.out.println("\tUser Id: " + m.getbUserId());
+            System.out.println("\tText: " + new String(m.getText()));
+        }
+
+        System.out.println('\n');
+
+        {   // invalid packet
+            s.create_packet(3, 104, "FNCS was fun these weekends", (byte) 31);
+            byte[] corrupted_packet = s.send_packet();
+            corrupted_packet[3] = 13;   // random corruption
+            r.receive_packet(corrupted_packet);
+            try {
+                m = r.getReceived_message();
+            }
+            catch (Exception e) {
+                System.out.println("Corrupted message could not have been read.");
+            }
+        }
 
 
 

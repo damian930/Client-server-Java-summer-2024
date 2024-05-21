@@ -1,24 +1,22 @@
 package org.example;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Packet {
-    private final byte bMagic;    // start of Pocket (13h == 19)
+    private final byte bMagic;    // start of Pocket (13h)
     private final byte bSrc;      // unique client application number
     private final long bPktId;    // message number
     private final int wLen;       // length of the message
     private final short wCrc_1;   // data integrity checker 1
-    private final Message bMsq;    // message
+    private final Message bMsq;   // message
     private final short wCrc_2;   // data integrity checker 2
-
-    private static long message_counter = 1;
-    private static final int[] table = fill_table();
+    private static long MESSAGE_COUNTER = 1;
+    private static final int[] TABLE = fill_table();
 
     Packet(Message message, byte client_application_number) {
-        this.bMagic = 19;
+        this.bMagic = 13;
         this.bSrc = client_application_number;
-        this.bPktId = Packet.message_counter++;
+        this.bPktId = Packet.MESSAGE_COUNTER++;
         this.wLen = message.getBytes().length;
         this.wCrc_1 = create_wCrc_1();
         this.bMsq = message;
@@ -43,7 +41,7 @@ public class Packet {
     public static short convert_to_crc16(byte[] byte_arr) {
         int crc = 0x0000;
         for (byte b : byte_arr) {
-            crc = (crc >>> 8) ^ table[(crc ^ b) & 0xff];
+            crc = (crc >>> 8) ^ TABLE[(crc ^ b) & 0xff];
         }
         return (short)crc;
     }
@@ -97,5 +95,9 @@ public class Packet {
                 0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
                 0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
         };
+    }
+
+    public static long getMessageCounter() {
+        return Packet.MESSAGE_COUNTER;
     }
 }

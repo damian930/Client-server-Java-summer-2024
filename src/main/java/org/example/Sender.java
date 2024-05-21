@@ -7,19 +7,12 @@ import java.security.*;
 public class Sender {
     private Packet packet;
     private final Cipher cipher;
-    private static final String alg = "RSA";
-    private final PublicKey publicKey;
-    private final PrivateKey privateKey;
+    private static final String ALG = "RSA";
     private PublicKey receiversKey;
+
     Sender() throws NoSuchPaddingException, NoSuchAlgorithmException {
-        this.cipher = Cipher.getInstance(alg);
-
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048); // key size
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-        this.publicKey = keyPair.getPublic();
-        this.privateKey = keyPair.getPrivate();
+        this.cipher = Cipher.getInstance(ALG);
+        this.receiversKey = null;
     }
 
     public byte[] send_packet() {
@@ -32,12 +25,14 @@ public class Sender {
         this.packet = new Packet(message, client_application_number);
     }
 
-    private byte[] cipher_message(String text) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        this.cipher.init(Cipher.ENCRYPT_MODE, this.receiversKey);
+    private byte[] cipher_message(String text) throws IllegalBlockSizeException, BadPaddingException {
+        if(this.receiversKey == null)
+            throw new NullPointerException("Couldn't cipher the text. Cipher key was null. Set key using setReceiversKey(PublicKey key) function. ");
         return this.cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void setReceiversKey(PublicKey key) {
+    public void setReceiversKey(PublicKey key) throws InvalidKeyException {
         this.receiversKey = key;
+        this.cipher.init(Cipher.ENCRYPT_MODE, this.receiversKey);
     }
 }

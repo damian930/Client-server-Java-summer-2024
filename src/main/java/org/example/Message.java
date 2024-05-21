@@ -1,12 +1,12 @@
 package org.example;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Message {
     private final int cType;      // command code
-
     private final int bUserId;    // used id
-    private final byte[] text; // text
+    private final byte[] text;    // text
 
     Message(int command_code, int user_id, byte[] text) {
         this.cType = command_code;
@@ -17,7 +17,7 @@ public class Message {
 
     public byte[] getBytes() {
         byte[] byte_arr = new byte[Integer.BYTES * 2 + this.text.length];   // byte arr[cType + bUserId + message]
-        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);  // big-endian by default
+        ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);                  // big-endian by default
         byteBuffer.putInt(this.cType).putInt(this.bUserId).put(this.text);
         return byte_arr;
     }
@@ -32,5 +32,22 @@ public class Message {
 
     public byte[] getText() {
         return text;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof Message)) {
+            return false;
+        }
+
+        Message m = (Message) obj;
+
+        return this.cType == m.cType &&
+                this.bUserId == m.bUserId &&
+                Arrays.equals(this.text, m.text);
     }
 }

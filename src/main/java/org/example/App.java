@@ -42,5 +42,6 @@ public class App {
             System.out.println("\tUser Id: " + (m != null ? m.getbUserId() : "null"));
             System.out.println("\tText: " + (m != null ? new String(m.getText()) : "null"));
         }
+
     }
 }

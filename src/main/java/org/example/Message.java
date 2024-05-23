@@ -50,4 +50,5 @@ public class Message {
                 this.bUserId == m.bUserId &&
                 Arrays.equals(this.text, m.text);
     }
+
 }

@@ -7,7 +7,6 @@ import java.security.*;
 public class Receiver {
     private byte[] packet_as_bytes;
     private Message received_message;
-    //boolean valid;
     private final Cipher cipher;
     private static final String ALG = "RSA";
     private final PublicKey publicKey;
@@ -24,28 +23,24 @@ public class Receiver {
         this.privateKey = keyPair.getPrivate();
 
         this.cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
-
-        //this.valid = false;
     }
 
     public PublicKey getPublicKey() {
         return this.publicKey;
     }
 
-    public Message receive_packet(byte[] arr) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        //this.valid = false;
+    public Message receive_packet(byte[] arr) throws IllegalBlockSizeException, BadPaddingException {
         this.packet_as_bytes = arr;
         if(!check_validity()) {
-            System.out.println("Packet was corrupted.");
+            //System.out.println("Packet was corrupted.");
             return null;
         }
-        System.out.println("Packet was fine.");
+        //System.out.println("Packet was fine.");
         save_message();
-        //this.valid = true;
         return this.received_message;
     }
 
-    private void save_message() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private void save_message() throws IllegalBlockSizeException, BadPaddingException {
         ByteBuffer buffer = ByteBuffer.wrap(this.packet_as_bytes);
         int command_code = buffer.getInt(16);
         int user_id = buffer.getInt(20);
@@ -79,10 +74,4 @@ public class Receiver {
         short crc = ByteBuffer.wrap(packet_as_bytes).getShort(16 + text_size);
         return Packet.convert_to_crc16(byte_arr) == crc;
     }
-
-    /*public Message getReceived_message() throws Exception {
-        if(this.valid)
-            return this.received_message;
-        throw new Exception();
-    }*/
 }

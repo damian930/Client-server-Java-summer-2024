@@ -11,7 +11,7 @@ import java.security.PublicKey;
 
 public class App {
     public static void main(String[] args ) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InterruptedException {
-        Decrypter d = new Decrypter();
+        /*Decrypter d = new Decrypter();
         byte[] packet_bytes = create_encrypted_packet("flopper", d.getPublicKey());
         d.decrypt(packet_bytes);
         Message m = d.getDecrypted_message();
@@ -21,6 +21,8 @@ public class App {
         System.out.println("\tUser Id: " + (m != null ? m.getbUserId() : "null"));
         System.out.println("\tText: " + (m != null ? new String(m.getText()) : "null"));
 
+        System.out.println("------------------------------");
+
         packet_bytes = create_encrypted_packet("dipper pines", d.getPublicKey());
         d.decrypt(packet_bytes);
         m = d.getDecrypted_message();
@@ -28,7 +30,20 @@ public class App {
         System.out.println("\nReceived:");
         System.out.println("\tCommand type: " + (m != null ? m.getcType() : "null"));
         System.out.println("\tUser Id: " + (m != null ? m.getbUserId() : "null"));
+        System.out.println("\tText: " + (m != null ? new String(m.getText()) + '\n' : "null\n"));*/
+
+        Encryptor e = new Encryptor();
+        Decrypter d = new Decrypter();
+        e.setPublicKey(d.getPublicKey());
+        byte[] packet_encr = e.encrypt(new Packet(new Message(1, 2, "flopper".getBytes()), (byte) 3));
+        d.decrypt(packet_encr);
+        Message m = d.getDecrypted_message();
+
+        System.out.println("\nReceived:");
+        System.out.println("\tCommand type: " + (m != null ? m.getcType() : "null"));
+        System.out.println("\tUser Id: " + (m != null ? m.getbUserId() : "null"));
         System.out.println("\tText: " + (m != null ? new String(m.getText()) + '\n' : "null\n"));
+
 
     }
 
@@ -55,7 +70,6 @@ public class App {
         byte[] for_crc_2 = new byte[8 + encrypted_text.length];
         System.arraycopy(buffer.array(), 16, for_crc_2, 0, for_crc_2.length);
         buffer.putShort(Packet.convert_to_crc16(for_crc_2));
-        short crc_2_dbg = Packet.convert_to_crc16(for_crc_2);
         return buffer.array();
     }
 }

@@ -23,6 +23,23 @@ public class Packet {
         this.wCrc_2 = create_wCrc_2();
     }
 
+    Packet(byte[] byte_arr) {
+        ByteBuffer buffer = ByteBuffer.wrap(byte_arr);
+        this.bMagic = buffer.get();
+        this.bSrc = buffer.get();
+        this.bPktId = buffer.getLong();
+        this.wLen = buffer.getInt();
+        this.wCrc_1 = buffer.getShort();
+
+        int cType = buffer.getInt();
+        int userId = buffer.getInt();
+        byte[] text = new byte[this.wLen - 8];
+        System.arraycopy(buffer.array(), 24, text, 0, text.length);
+
+        this.bMsq = new Message(cType, userId, text);
+        this.wCrc_2 = buffer.getShort();
+    }
+
     private short create_wCrc_1() {
         byte[] byte_arr = new byte[Byte.BYTES * 2 + Long.BYTES + Integer.BYTES];
         ByteBuffer byteBuffer = ByteBuffer.wrap(byte_arr);
@@ -38,14 +55,6 @@ public class Packet {
         return convert_to_crc16(byte_arr);
     }
 
-    public static short convert_to_crc16(byte[] byte_arr) {
-        int crc = 0x0000;
-        for (byte b : byte_arr) {
-            crc = (crc >>> 8) ^ TABLE[(crc ^ b) & 0xff];
-        }
-        return (short)crc;
-    }
-
     public byte[] getBytes() {
         byte[] byte_arr = new byte[
                 Byte.BYTES * 2 + Long.BYTES +
@@ -58,6 +67,30 @@ public class Packet {
                 .putShort(this.wCrc_1).put(this.bMsq.getBytes())
                 .putShort(this.wCrc_2);
         return byte_arr;
+    }
+
+    public static short convert_to_crc16(byte[] byte_arr) {
+        int crc = 0x0000;
+        for (byte b : byte_arr) {
+            crc = (crc >>> 8) ^ TABLE[(crc ^ b) & 0xff];
+        }
+        return (short)crc;
+    }
+
+    public static short convert_to_crc16(byte[] byte_arr, int offset) {
+        int crc = 0x0000;
+        for (int i=offset; i<byte_arr.length; i++) {
+            crc = (crc >>> 8) ^ TABLE[(crc ^ byte_arr[i]) & 0xff];
+        }
+        return (short)crc;
+    }
+
+    public static short convert_to_crc16(byte[] byte_arr, int offset, int length) {
+        int crc = 0x0000;
+        for (int i=offset; i<length; i++) {
+            crc = (crc >>> 8) ^ TABLE[(crc ^ byte_arr[i]) & 0xff];
+        }
+        return (short)crc;
     }
 
     private static int[] fill_table() {

@@ -37,7 +37,7 @@ public class Packet {
         System.arraycopy(buffer.array(), 24, text, 0, text.length);
 
         this.bMsq = new Message(cType, userId, text);
-        this.wCrc_2 = buffer.getShort();
+        this.wCrc_2 = buffer.getShort(byte_arr.length - 2);
     }
 
     private short create_wCrc_1() {
@@ -87,7 +87,7 @@ public class Packet {
 
     public static short convert_to_crc16(byte[] byte_arr, int offset, int length) {
         int crc = 0x0000;
-        for (int i=offset; i<length; i++) {
+        for (int i=offset; i<offset + length; i++) {
             crc = (crc >>> 8) ^ TABLE[(crc ^ byte_arr[i]) & 0xff];
         }
         return (short)crc;

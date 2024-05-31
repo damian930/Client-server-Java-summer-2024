@@ -35,7 +35,7 @@ public class App {
         Encryptor e = new Encryptor();
         Decrypter d = new Decrypter();
         e.setPublicKey(d.getPublicKey());
-        byte[] packet_encr = e.encrypt(new Packet(new Message(1, 2, "flopper".getBytes()), (byte) 3));
+        byte[] packet_encr = e.encrypt(new MessageGenerator().create_packet("flopper"));
         d.decrypt(packet_encr);
         Message m = d.getDecrypted_message();
 
@@ -55,29 +55,4 @@ public class App {
 
     }
 
-    public static byte[] create_encrypted_packet(String text, PublicKey key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] encrypted_text = cipher.doFinal(text.getBytes());
-
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[20 + 4 + 4 + encrypted_text.length + 2]);
-
-        // CRC_1  (works)
-        buffer.put((byte) 13);
-        buffer.put((byte) 1);
-        buffer.putLong(Packet.getMessageCounter());
-        buffer.putInt(encrypted_text.length + 4 + 4);
-        byte[] for_crc_1 = new byte[14];
-        System.arraycopy(buffer.array(), 0, for_crc_1, 0, for_crc_1.length);
-        buffer.putShort(Packet.convert_to_crc16(for_crc_1));
-
-        // CRC_2  (works)
-        buffer.putInt(1);
-        buffer.putInt(2);
-        buffer.put(encrypted_text);
-        byte[] for_crc_2 = new byte[8 + encrypted_text.length];
-        System.arraycopy(buffer.array(), 16, for_crc_2, 0, for_crc_2.length);
-        buffer.putShort(Packet.convert_to_crc16(for_crc_2));
-        return buffer.array();
-    }
 }

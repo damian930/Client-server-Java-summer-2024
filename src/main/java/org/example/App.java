@@ -44,6 +44,14 @@ public class App {
         System.out.println("\tUser Id: " + (m != null ? m.getbUserId() : "null"));
         System.out.println("\tText: " + (m != null ? new String(m.getText()) + '\n' : "null\n"));
 
+        Processor p = new Processor();
+        p.process(m);
+        Message answer = p.getAnswer();
+
+        System.out.println("Received Answer: " + new String(answer.getText()));
+        Sender s = new Sender();
+        s.sendMessage(m.getBytes(), "230.175.48.203");
+
 
     }
 

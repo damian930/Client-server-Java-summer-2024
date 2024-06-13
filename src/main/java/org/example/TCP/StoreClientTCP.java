@@ -27,7 +27,7 @@ public class StoreClientTCP {
     private int port;
     private Packet lastSentPacket;
 
-    public void startConnection(String ip, int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, ClassNotFoundException, InvalidKeyException, InvalidKeySpecException, InterruptedException {
+    public void startConnection(String ip, int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, InterruptedException {
         try {
             this.ip = ip;
             this.port = port;
@@ -53,13 +53,13 @@ public class StoreClientTCP {
                 throw new SocketException();
             }
             System.out.println("\tAttempt " + ++this.attempts);
-            //TimeUnit.SECONDS.sleep(3);
+            TimeUnit.SECONDS.sleep(3);
             startConnection(ip, port); // if the server breaks
         }
 
     }
 
-    public byte[] sendPacket(Packet packet) throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, ClassNotFoundException {
+    public void sendPacket(Packet packet) throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
         byte[] encrypted_packet;
         //System.out.println("Sleeping 3");
         while(true) {
@@ -83,16 +83,14 @@ public class StoreClientTCP {
         System.out.println("Sent encrypted packet");
         this.attempts = 0; // for receive message next function to not go recursively forever
         this.lastSentPacket = packet;
-        return encrypted_packet;
     }
 
-    public Message receiveMessage() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InterruptedException, ClassNotFoundException {
+    public Message receiveMessage() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InterruptedException {
         Message m;
         System.out.println("Waiting 3");
         //TimeUnit.SECONDS.sleep(3);
         try {
             m = new Message(receiveMessage(clientSocket.getInputStream()));
-            System.out.println(7);
         }
         catch (SocketException e) {
             System.out.println("Couldn't receive packet");
@@ -122,7 +120,7 @@ public class StoreClientTCP {
         return buffer.toByteArray();
     }
 
-    public void stopConnection() throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, ClassNotFoundException {
+    public void stopConnection() throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
         sendPacket(new Packet(new Message(1, 2, "disconnect me".getBytes()), (byte) 3));
         in.close();
         out.close();

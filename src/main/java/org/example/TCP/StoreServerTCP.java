@@ -22,10 +22,11 @@ public class StoreServerTCP {
         System.out.println("Server started");
         LinkedList<EchoClientHandler> list_of_users = new LinkedList<>();
         boolean running = true;
+
         while (true) {
-            for(EchoClientHandler user : list_of_users) {
+            /*for(EchoClientHandler user : list_of_users) {
                 running = user.toStopServer();
-            }
+            }*/
             if(!running)
                 break;
 
@@ -33,8 +34,6 @@ public class StoreServerTCP {
             list_of_users.add(c);
             c.start();
         }
-
-        System.out.println("We here");
     }
 
     public void stop() throws IOException {
@@ -97,11 +96,10 @@ public class StoreServerTCP {
 
         private boolean toStopServer() {
             return this.decrypter.getDecrypted_message() != null
-                    &&
-                    new String(this.decrypter.getDecrypted_message().getText()).equals("stop the server");
+                    ||
+                    !new String(this.decrypter.getDecrypted_message().getText()).equals("stop the server");
         }
 
     }
-
 
 }

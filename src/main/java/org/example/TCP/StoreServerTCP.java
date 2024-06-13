@@ -2,17 +2,12 @@ package org.example.TCP;
 
 import org.example.Decrypter;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class StoreServerTCP {
     private ServerSocket serverSocket;
@@ -21,22 +16,19 @@ public class StoreServerTCP {
     public StoreServerTCP() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
     }
 
-    public void start(int port) throws IOException, InterruptedException {
+    public void start(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        System.out.println("Server started.");
+        System.out.println("Server started");
         while (true) {
-            EchoClientHandler c = new EchoClientHandler(this.serverSocket.accept(), this.decrypter);
-            c.start();
-//            c.join();
-//            String text = new String(c.decrypter.getDecrypted_message().getText());
-//            if(text.equals("stop the server"))
-//                break;
+            new EchoClientHandler(this.serverSocket.accept(), this.decrypter).start();
+
+            // dont know how to stop the server
         }
     }
 
     public void stop() throws IOException {
         serverSocket.close();
-        System.out.println("Server stopped.");
+        System.out.println("Server stopped");
     }
 
     private static class EchoClientHandler extends Thread {
@@ -55,14 +47,13 @@ public class StoreServerTCP {
                 DataInputStream in = new DataInputStream(clientSocket.getInputStream());
                 out.write(this.decrypter.getPublicKey().getEncoded());
                 out.flush();
-                System.out.println("Public key was sent");
+                System.out.println("Sent public key");
 
                 do {
                     byte[] encrypted = receiveMessage(in);
                     this.decrypter.decrypt(encrypted);
                     System.out.println("Received encrypted packet");
 
-                    System.out.println("Sending echo message");
                     out.write(decrypter.getDecrypted_message().getBytes());
                     out.flush();
                     System.out.println("Sent echo message");

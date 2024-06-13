@@ -6,8 +6,8 @@ import org.example.Packet;
 
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.math.BigInteger;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -22,44 +22,90 @@ public class StoreClientTCP {
     private DataOutputStream out;
     private DataInputStream in;
     private Encryptor encryptor;
+    private int attempts = 1;
+    private String ip;
+    private int port;
+    private Packet lastSentPacket;
 
     public void startConnection(String ip, int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, ClassNotFoundException, InvalidKeyException, InvalidKeySpecException, InterruptedException {
-        System.out.println("\nStarting connection");
-        this.clientSocket = new Socket(ip, port);
-        this.encryptor = new Encryptor();
+        try {
+            this.ip = ip;
+            this.port = port;
+            this.clientSocket = new Socket(ip, port);
+            this.encryptor = new Encryptor();
+            System.out.println("Started connection with ip " + ip + ", port " + port);
 
-        System.out.println("Started connection with ip " + ip + ", port " + port);
+            this.in = new DataInputStream(this.clientSocket.getInputStream());
+            byte[] keyBytes = new byte[2048];
+            int bytesRead = this.in.read(keyBytes);
+            byte[] keyBytesTrimmed = Arrays.copyOf(keyBytes, bytesRead);
+            PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyBytesTrimmed));
+            System.out.println("Received public key");
 
-        System.out.println("Waiting for the public key");
+            this.encryptor.setPublicKey(publicKey);
+            System.out.println("Encrypted packet");
+            this.attempts = 0;
+        }
+        catch (SocketException e) { // if the server is unreachable
+            System.out.println("Couldn't connect ip " + ip + ", port " + port);
+            if(this.attempts == 5) {
+                System.out.println("\tExiting");
+                throw new SocketException();
+            }
+            System.out.println("\tAttempt " + ++this.attempts);
+            TimeUnit.SECONDS.sleep(3);
+            startConnection(ip, port); // if the server breaks
+        }
 
-        this.in = new DataInputStream(this.clientSocket.getInputStream());
-        byte[] keyBytes = new byte[2048];
-        int bytesRead = this.in.read(keyBytes);
-        byte[] keyBytesTrimmed = Arrays.copyOf(keyBytes, bytesRead);
-
-        PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyBytesTrimmed));
-
-        System.out.println("Received the public key");
-        this.encryptor.setPublicKey(publicKey);
-        System.out.println("Encrypted packet");
     }
 
-    public byte[] sendPacket(Packet packet) throws IOException, InterruptedException {
-        System.out.println("Sending packet");
-        byte[] encrypted_packet = this.encryptor.encrypt(packet);
+    public byte[] sendPacket(Packet packet) throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, ClassNotFoundException {
+        byte[] encrypted_packet;
+        //System.out.println("Sleeping 3");
+        while(true) {
+            try {
+                //TimeUnit.SECONDS.sleep(3);
+                encrypted_packet = this.encryptor.encrypt(packet);
+                this.out = new DataOutputStream(this.clientSocket.getOutputStream());
+                this.out.write(encrypted_packet);
+                this.out.flush();
+                break;
+            }
+            catch (SocketException e) {
+                System.out.println("Couldn't sent packet");
+                System.out.println("\tReconnecting to the server again");
+                this.attempts = 0;
+                startConnection(this.ip, this.port);
+                // it will either crash when reconnecting to the server completely or reconnect and send packet
+            }
+        }
 
-        this.out = new DataOutputStream(this.clientSocket.getOutputStream());
-        this.out.write(encrypted_packet);
-        this.out.flush();
-        System.out.println("Packet was sent");
-
+        System.out.println("Sent encrypted packet");
+        this.attempts = 0; // for receive message next function to not go recursively forever
+        this.lastSentPacket = packet;
         return encrypted_packet;
     }
 
-    public Message receiveMessage() throws IOException {
-        //this.in = new DataInputStream(this.clientSocket.getInputStream());
-        System.out.println("Receiving message");
-        return new Message(receiveMessage(clientSocket.getInputStream()));
+    public Message receiveMessage() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InterruptedException, ClassNotFoundException {
+        Message m;
+        System.out.println("Waiting 3");
+        TimeUnit.SECONDS.sleep(3);
+        try {
+            m = new Message(receiveMessage(clientSocket.getInputStream()));
+            System.out.println(7);
+        }
+        catch (SocketException e) {
+            System.out.println("Couldn't receive packet");
+            sendPacket(this.lastSentPacket);
+            if(this.attempts == 3)  // in case if recursively forever. It shouldn't, but in case it does go wild
+                throw new SocketException();
+            m = new Message(receiveMessage(clientSocket.getInputStream()));
+            // if when trying to receive something happens to the server
+            // then user tries to reconnect and send it all over again
+            // the order won`t change
+        }
+        System.out.println("Message received");
+        return m;
     }
 
     private byte[] receiveMessage(InputStream inputStream) throws IOException {
@@ -76,7 +122,7 @@ public class StoreClientTCP {
         return buffer.toByteArray();
     }
 
-    public void stopConnection() throws IOException, InterruptedException {
+    public void stopConnection() throws IOException, InterruptedException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, ClassNotFoundException {
         sendPacket(new Packet(new Message(1, 2, "disconnect me".getBytes()), (byte) 3));
         in.close();
         out.close();

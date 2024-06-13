@@ -1,5 +1,7 @@
-package org.example;
+package org.example.this_hm_tests;
 
+import org.example.Message;
+import org.example.Packet;
 import org.example.TCP.StoreClientTCP;
 import org.example.TCP.StoreServerTCP;
 import org.junit.jupiter.api.*;

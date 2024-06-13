@@ -1,14 +1,13 @@
-package org.example;
+package org.example.this_hm_tests;
 
-import org.example.TCP.StoreServerTCP;
+import org.example.Message;
+import org.example.Packet;
 import org.example.UPD.StoreClientUDP;
 import org.example.UPD.StoreServerUDP;
 import org.junit.jupiter.api.*;
 
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

@@ -1,5 +1,8 @@
-package org.example;
+package org.example.tests_from_prev_hms;
 
+import org.example.Encryptor;
+import org.example.Message;
+import org.example.Packet;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.BadPaddingException;

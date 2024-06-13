@@ -1,5 +1,6 @@
-package org.example;
+package org.example.tests_from_prev_hms;
 
+import org.example.Message;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

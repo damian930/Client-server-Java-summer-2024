@@ -1,5 +1,8 @@
-package org.example;
+package org.example.tests_from_prev_hms;
 
+import org.example.Message;
+import org.example.Packet;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -11,7 +14,7 @@ class PacketTest {
     @Test
     void testConversionToCrc16_1() {
         byte[] byte_arr = {102, 108, 111, 112, 112, 101, 114};  // "flopper"
-        assertEquals(3435, Packet.convert_to_crc16(byte_arr));
+        Assertions.assertEquals(3435, Packet.convert_to_crc16(byte_arr));
     }
 
     @Test

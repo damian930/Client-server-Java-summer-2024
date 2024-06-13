@@ -5,8 +5,7 @@ import org.example.Packet;
 
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

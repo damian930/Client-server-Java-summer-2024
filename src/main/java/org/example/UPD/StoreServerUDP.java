@@ -24,7 +24,7 @@ public class StoreServerUDP extends Thread{
     private byte[] buf = new byte[282]; // RSA cipher length
     private Decrypter decrypter;
 
-    StoreServerUDP() throws SocketException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public StoreServerUDP() throws SocketException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.socket = new DatagramSocket(4445);
         this.decrypter = new Decrypter();
     }
@@ -83,17 +83,12 @@ public class StoreServerUDP extends Thread{
             System.out.println("Echo sent");
 
             // end condition
-//            if (received.equals("end")) {
-//                running = false;
-//                continue;
-//            }
+            if (new String(m.getText()).equals("stop the server")) {
+                running = false;
+                System.out.println("Server stopped");
+                continue;
+            }
 
-            // sending message to the client
-//            try {
-//                socket.send(packet);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
         }
         socket.close();
 

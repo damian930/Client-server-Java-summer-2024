@@ -6,7 +6,6 @@ import org.junit.jupiter.api.*;
 
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -14,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StoreClientTCP_Test {
+public class StoreTCP_Test {
     private StoreServerTCP server;
     private StoreClientTCP c1, c2, c3;
 

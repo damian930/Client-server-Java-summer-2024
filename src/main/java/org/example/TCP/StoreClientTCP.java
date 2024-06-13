@@ -53,7 +53,7 @@ public class StoreClientTCP {
                 throw new SocketException();
             }
             System.out.println("\tAttempt " + ++this.attempts);
-            TimeUnit.SECONDS.sleep(3);
+            //TimeUnit.SECONDS.sleep(3);
             startConnection(ip, port); // if the server breaks
         }
 
@@ -89,7 +89,7 @@ public class StoreClientTCP {
     public Message receiveMessage() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InterruptedException, ClassNotFoundException {
         Message m;
         System.out.println("Waiting 3");
-        TimeUnit.SECONDS.sleep(3);
+        //TimeUnit.SECONDS.sleep(3);
         try {
             m = new Message(receiveMessage(clientSocket.getInputStream()));
             System.out.println(7);

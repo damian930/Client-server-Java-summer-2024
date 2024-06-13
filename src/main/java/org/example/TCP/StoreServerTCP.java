@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
 
 public class StoreServerTCP {
     private ServerSocket serverSocket;
@@ -19,16 +20,26 @@ public class StoreServerTCP {
     public void start(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         System.out.println("Server started");
+        LinkedList<EchoClientHandler> list_of_users = new LinkedList<>();
+        boolean running = true;
         while (true) {
-            new EchoClientHandler(this.serverSocket.accept(), this.decrypter).start();
+            for(EchoClientHandler user : list_of_users) {
+                running = user.toStopServer();
+            }
+            if(!running)
+                break;
 
-            // dont know how to stop the server
+            EchoClientHandler c = new EchoClientHandler(this.serverSocket.accept(), this.decrypter);
+            list_of_users.add(c);
+            c.start();
         }
+
+        System.out.println("We here");
     }
 
     public void stop() throws IOException {
         serverSocket.close();
-        System.out.println("Server stopped");
+        System.out.println("Server stopped\n");
     }
 
     private static class EchoClientHandler extends Thread {
@@ -82,6 +93,12 @@ public class StoreServerTCP {
             }
             buffer.flush();
             return buffer.toByteArray();
+        }
+
+        private boolean toStopServer() {
+            return this.decrypter.getDecrypted_message() != null
+                    &&
+                    new String(this.decrypter.getDecrypted_message().getText()).equals("stop the server");
         }
 
     }

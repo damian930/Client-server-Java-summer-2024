@@ -8,14 +8,28 @@ import org.hibernate.cfg.Configuration;
 
 import java.util.List;
 
+/**
+ * Data Access Object (DAO) class for handling Category entities in the database.
+ * This class provides methods to perform CRUD (Create, Read, Update, Delete) operations
+ * on Category objects using Hibernate ORM.
+ */
 public class Category_DAO {
 
     private SessionFactory sessionFactory;
 
+    /**
+     * Default constructor that initializes the Hibernate SessionFactory.
+     */
     public Category_DAO() {
         this.sessionFactory = new Configuration().configure().buildSessionFactory();
     }
 
+    /**
+     * Retrieves a Category object by its unique identifier.
+     *
+     * @param id The identifier of the Category to retrieve.
+     * @return The Category object if found, otherwise null.
+     */
     public Category findById(int id) {
         try (Session session = sessionFactory.openSession()) {
             return session.get(Category.class, id);
@@ -25,6 +39,12 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Retrieves a Category object by its name.
+     *
+     * @param name The name of the Category to retrieve.
+     * @return The Category object if found, otherwise null.
+     */
     public Category findByName(String name) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM Category WHERE name = :name", Category.class)
@@ -36,6 +56,12 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Checks if a Category with the given name exists in the database.
+     *
+     * @param name The name of the Category to check.
+     * @return true if a Category with the name exists, false otherwise.
+     */
     public boolean existsByName(String name) {
         try (Session session = sessionFactory.openSession()) {
             Long count = session.createQuery("SELECT COUNT(*) FROM Category WHERE name = :name", Long.class)
@@ -48,6 +74,11 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Retrieves all Category objects from the database.
+     *
+     * @return A list of Category objects.
+     */
     public List<Category> findAll() {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM Category", Category.class).list();
@@ -57,6 +88,11 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Saves a Category object to the database.
+     *
+     * @param category The Category object to save.
+     */
     public void save(Category category) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -71,6 +107,11 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Updates a Category object in the database.
+     *
+     * @param category The Category object to update.
+     */
     public void update(Category category) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -89,6 +130,11 @@ public class Category_DAO {
         }
     }
 
+    /**
+     * Deletes a Category object from the database.
+     *
+     * @param category The Category object to delete.
+     */
     public void delete(Category category) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -103,10 +149,9 @@ public class Category_DAO {
         }
     }
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-       this.sessionFactory = sessionFactory;
-    }
-
+    /**
+     * Closes the SessionFactory.
+     */
     public void close() {
         sessionFactory.close();
     }

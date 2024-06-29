@@ -4,6 +4,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
+/**
+ * Represents a category entity in the application.
+ *
+ * <p>Each category has a unique identifier and a name that must be non-blank and unique.
+ * Categories can have associated products in a one-to-many relationship.
+ */
 @Entity
 @Table(name = "Category")
 public class Category {

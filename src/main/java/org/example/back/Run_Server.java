@@ -229,7 +229,7 @@ public class Run_Server {
     // ------------------------------------------------------------------------------------ \\
 
         httpsServer.createContext("/products", exchange -> {
-            Map<String, String> queryParams = parseQueryParams_products(exchange.getRequestURI().getQuery());
+            Map<String, String> queryParams = parseQueryParams(exchange.getRequestURI().getQuery());
             String categoryName = queryParams.get("category");
 
             Product_DAO productDAO = new Product_DAO();
@@ -248,7 +248,7 @@ public class Run_Server {
 
         httpsServer.createContext("/product", exchange -> {
             try {
-                Map<String, String> queryParams = parseQueryParams_product(exchange.getRequestURI().getQuery());
+                Map<String, String> queryParams = parseQueryParams(exchange.getRequestURI().getQuery());
                 int productId = Integer.parseInt(queryParams.get("id"));
 
                 Product_DAO productDAO = new Product_DAO();
@@ -311,7 +311,7 @@ public class Run_Server {
 
         httpsServer.createContext("/edit/product", exchange -> {
             try {
-                Map<String, String> queryParams = parseQueryParams_product(exchange.getRequestURI().getQuery());
+                Map<String, String> queryParams = parseQueryParams(exchange.getRequestURI().getQuery());
                 int productId = Integer.parseInt(queryParams.get("id"));
 
                 Product_DAO productDAO = new Product_DAO();

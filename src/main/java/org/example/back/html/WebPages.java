@@ -13,6 +13,14 @@ import java.util.Map;
 public class WebPages {
 
     //------------------------------------------------------------------------------------------------------------//
+
+    /**
+     * Generates dynamic HTML content for displaying a list of categories as buttons,
+     * along with navigation buttons and styles for a web page.
+     *
+     * @param categories The list of Category objects to display as buttons.
+     * @return A String containing the generated HTML content.
+     */
     public static String generateDynamicHTMLForCategories(List<Category> categories) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -125,6 +133,11 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
+    /**
+     * Generates dynamic HTML content for an "Add Category" form page with styling and client-side form validation.
+     *
+     * @return A String containing the generated HTML content for the "Add Category" page.
+     */
     public static String generateAddCategoryHTML() {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -206,6 +219,18 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
+    /**
+     * Generates dynamic HTML content for an "Edit Category" form page with styling, category selection, and client-side form validation.
+     * <p>
+     * This method constructs an HTML form for editing a category. The form includes:
+     * - A heading indicating "Edit Category".
+     * - Dropdown menu populated with existing categories for selection.
+     * - Input field for entering a new name for the selected category.
+     * - Save button to submit the form.
+     *
+     * @param categories The list of categories to populate in the dropdown menu.
+     * @return A string containing the complete HTML content for the "Edit Category" form page.
+     */
     public static String generateEditCategoryHTML(List<Category> categories) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -302,6 +327,18 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
+    /**
+     * Generates dynamic HTML content for a "Delete Category" form page with styling, category selection, and client-side confirmation.
+     * <p>
+     * This method constructs an HTML form for deleting a category. The form includes:
+     * - A heading indicating "Delete Category".
+     * - Dropdown menu populated with existing categories for selection.
+     * - Hidden input field to store the selected category name.
+     * - Delete button to confirm the deletion action.
+     *
+     * @param categories The list of categories to populate in the dropdown menu.
+     * @return A string containing the complete HTML content for the "Delete Category" form page.
+     */
     public static String generateDeleteCategoryHTML(List<Category> categories) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -393,21 +430,13 @@ public class WebPages {
 
     //------------------------------------------------------------------------------------------------------------//
 
-
-    public static Map<String, String> parseQueryParams_products(String query) {
-        Map<String, String> params = new HashMap<>();
-        if (query != null) {
-            String[] pairs = query.split("&");
-            for (String pair : pairs) {
-                int idx = pair.indexOf("=");
-                String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
-                String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
-                params.put(key, value);
-            }
-        }
-        return params;
-    }
-
+    /**
+     * Generates dynamic HTML for displaying products of a given category as buttons.
+     *
+     * @param categoryName The name of the category to display.
+     * @param products     List of products to display.
+     * @return Dynamic HTML string.
+     */
     public static String generateDynamicHTMLForProducts(String categoryName, List<Product> products) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -542,20 +571,12 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
-    public static Map<String, String> parseQueryParams_product(String query) {
-        Map<String, String> params = new HashMap<>();
-        if (query != null && !query.isEmpty()) {
-            String[] pairs = query.split("&");
-            for (String pair : pairs) {
-                int idx = pair.indexOf("=");
-                String key = idx > 0 ? pair.substring(0, idx) : pair;
-                String value = idx > 0 && pair.length() > idx + 1 ? pair.substring(idx + 1) : "";
-                params.put(key, value);
-            }
-        }
-        return params;
-    }
-
+    /**
+     * Generates dynamic HTML content for displaying details and actions for a specific product.
+     *
+     * @param product The Product object containing details to display.
+     * @return A String containing the generated HTML content.
+     */
     public static String generateDynamicHTMLForProduct(Product product) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -704,6 +725,14 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
+    /**
+     * Generates dynamic HTML content for editing a product, including a form for updating details
+     * and options for category selection, with JavaScript for form validation and deletion.
+     *
+     * @param product    The Product object to edit.
+     * @param categories The list of available categories to select from.
+     * @return A String containing the generated HTML content.
+     */
     public static String generateEditProductHTML(Product product, List<Category> categories) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -850,7 +879,6 @@ public class WebPages {
                 if (keyValue.length == 2) {
                     String key = keyValue[0];
                     String value = keyValue[1];
-                    // URL-decode the value if needed
                     value = java.net.URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
                     formDataMap.put(key, value);
                 }
@@ -860,6 +888,13 @@ public class WebPages {
         return formDataMap;
     }
 
+    /**
+     * Generates dynamic HTML content for adding a new product, including a form for inputting details
+     * and options for selecting categories, with JavaScript for form validation.
+     *
+     * @param categories The list of available categories to select from.
+     * @return A String containing the generated HTML content.
+     */
     public static String generateAddProductHTML(List<Category> categories) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -973,6 +1008,15 @@ public class WebPages {
         return htmlBuilder.toString();
     }
 
+    /**
+     * Generates dynamic HTML content for displaying store statistics, including overall inventory statistics
+     * and category-wise inventory statistics based on provided product and category data.
+     *
+     * @param products              The list of products in the store.
+     * @param categories            The list of categories to categorize the products.
+     * @param totalInventoryValue   The total value of the entire store's inventory.
+     * @return A String containing the generated HTML content.
+     */
     public static String generateDynamicHTMLForStats(List<Product> products, List<Category> categories, double totalInventoryValue) {
         StringBuilder htmlBuilder = new StringBuilder();
 
@@ -1054,5 +1098,29 @@ public class WebPages {
     }
 
 
+    //------------------------------------------------------------------------------------------------------------//
+
+
+    /**
+     * Parses a URL-encoded query string into a map of key-value pairs.
+     *
+     * @param query The URL-encoded query string to parse.
+     * @return A {@code Map<String, String>} containing the parsed key-value pairs from the query string.
+     *         If {@code query} is {@code null}, an empty map is returned.
+     * @throws IllegalArgumentException If the query string is malformed and cannot be parsed correctly.
+     */
+    public static Map<String, String> parseQueryParams(String query) {
+        Map<String, String> params = new HashMap<>();
+        if (query != null) {
+            String[] pairs = query.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf("=");
+                String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                params.put(key, value);
+            }
+        }
+        return params;
+    }
 }
 

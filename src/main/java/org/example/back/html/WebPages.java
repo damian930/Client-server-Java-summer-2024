@@ -6,6 +6,7 @@ import org.example.back.data_base.Product_DAO;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,15 @@ public class WebPages {
     //------------------------------------------------------------------------------------------------------------//
 
     /**
-     * Generates dynamic HTML content for displaying a list of categories as buttons,
+     * Generates dynamic HTML content for displaying a list of categories as buttons sorted by names,
      * along with navigation buttons and styles for a web page.
      *
      * @param categories The list of Category objects to display as buttons.
      * @return A String containing the generated HTML content.
      */
     public static String generateDynamicHTMLForCategories(List<Category> categories) {
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Categories</title>");
@@ -139,6 +142,7 @@ public class WebPages {
      * @return A String containing the generated HTML content for the "Add Category" page.
      */
     public static String generateAddCategoryHTML() {
+        @SuppressWarnings("StringBufferReplaceableByString")
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Add Category</title>");
@@ -232,6 +236,8 @@ public class WebPages {
      * @return A string containing the complete HTML content for the "Edit Category" form page.
      */
     public static String generateEditCategoryHTML(List<Category> categories) {
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Edit Category</title>");
@@ -340,6 +346,8 @@ public class WebPages {
      * @return A string containing the complete HTML content for the "Delete Category" form page.
      */
     public static String generateDeleteCategoryHTML(List<Category> categories) {
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Delete Category</title>");
@@ -438,6 +446,8 @@ public class WebPages {
      * @return Dynamic HTML string.
      */
     public static String generateDynamicHTMLForProducts(String categoryName, List<Product> products) {
+        products.sort(productNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>").append(categoryName).append(" Products</title>");
@@ -578,6 +588,7 @@ public class WebPages {
      * @return A String containing the generated HTML content.
      */
     public static String generateDynamicHTMLForProduct(Product product) {
+        @SuppressWarnings("StringBufferReplaceableByString")
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>").append(product.getName()).append(" - Edit Product</title>");
@@ -734,6 +745,8 @@ public class WebPages {
      * @return A String containing the generated HTML content.
      */
     public static String generateEditProductHTML(Product product, List<Category> categories) {
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Edit Product</title>");
@@ -896,6 +909,8 @@ public class WebPages {
      * @return A String containing the generated HTML content.
      */
     public static String generateAddProductHTML(List<Category> categories) {
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Add Product</title>");
@@ -1018,6 +1033,9 @@ public class WebPages {
      * @return A String containing the generated HTML content.
      */
     public static String generateDynamicHTMLForStats(List<Product> products, List<Category> categories, double totalInventoryValue) {
+        products.sort(productNameComparator());
+        categories.sort(categoryNameComparator());
+
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("<html><head><title>Store Statistics</title>");
@@ -1122,5 +1140,27 @@ public class WebPages {
         }
         return params;
     }
+
+    /**
+     * Returns a comparator that compares Category objects by their names
+     * ignoring case.
+     *
+     * @return A comparator for Category objects based on name ignoring case.
+     */
+    public static Comparator<Category> categoryNameComparator() {
+        return Comparator.comparing((Category c) -> c.getName().toLowerCase());
+    }
+
+    /**
+     * Returns a comparator that compares Product objects by their names
+     * ignoring case.
+     *
+     * @return A comparator for Product objects based on name ignoring case.
+     */
+    public static Comparator<Product> productNameComparator() {
+        return Comparator.comparing((Product p) -> p.getName().toLowerCase());
+    }
+
+
 }
 

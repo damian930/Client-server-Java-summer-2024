@@ -39,15 +39,12 @@ public class Run_Server {
         httpsServer.createContext("/categories", exchange -> {
             System.out.println("entered categories");
             try {
-                System.out.println(0);
                 Category_DAO categoryDAO = new Category_DAO();
-                System.out.println(1);
                 List<Category> categories = categoryDAO.findAll();
-                System.out.println(2);
-                String dynamicHtml = generateDynamicHTMLForCategories(categories);
-                System.out.println("generated");
+
+                String dynamicHtml = generateDynamicHTMLForCategories(categories);;
                 exchange.sendResponseHeaders(200, dynamicHtml.getBytes().length);
-                System.out.println("sent");
+
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(dynamicHtml.getBytes());
                 }
@@ -305,7 +302,7 @@ public class Run_Server {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(500, 0); // Internal Server Error
             } finally {
-                exchange.close(); // Close the exchange after handling
+                exchange.close();
             }
         });
 

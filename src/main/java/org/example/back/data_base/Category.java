@@ -12,6 +12,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "Category")
+@SuppressWarnings("unused")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

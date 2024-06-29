@@ -5,7 +5,14 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
-
+/**
+ * Represents a product entity in the application.
+ *
+ * <p>Each product has a unique identifier (ID), a unique Universal Product Code (UPC),
+ * a name that must be non-blank and unique, a selling price that must be greater than or equal to 0,
+ * a quantity that must be greater or equal to 0, characteristics describing the product,
+ * and belongs to a category.
+ */
 @Entity
 @Table(name = "Product")
 public class Product {

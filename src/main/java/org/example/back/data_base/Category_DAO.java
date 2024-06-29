@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Category_DAO {
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     /**
      * Default constructor that initializes the Hibernate SessionFactory.
@@ -150,7 +150,7 @@ public class Category_DAO {
     }
 
     /**
-     * Closes the SessionFactory.
+     * Closes the Hibernate SessionFactory.
      */
     public void close() {
         sessionFactory.close();

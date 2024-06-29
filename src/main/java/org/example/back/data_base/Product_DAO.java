@@ -14,10 +14,19 @@ public class Product_DAO {
 
     private final SessionFactory sessionFactory;
 
+    /**
+     * Default constructor that initializes the Hibernate SessionFactory.
+     */
     public Product_DAO() {
         this.sessionFactory = new Configuration().configure().buildSessionFactory();
     }
 
+    /**
+     * Retrieves a Product object by its unique identifier.
+     *
+     * @param id The identifier of the Product to retrieve.
+     * @return The Product object if found, otherwise null.
+     */
     public Product findById(int id) {
         try (Session session = sessionFactory.openSession()) {
             return session.get(Product.class, id);
@@ -27,6 +36,12 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Retrieves Product objects belonging to a specific category.
+     *
+     * @param categoryName The name of the category to filter by.
+     * @return A list of Product objects belonging to the specified category.
+     */
     public List<Product> findByCategory(String categoryName) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -41,6 +56,12 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Retrieves a Product object by its UPC (Universal Product Code).
+     *
+     * @param upc The UPC of the Product to retrieve.
+     * @return The Product object if found, otherwise null.
+     */
     public Product findByUPC(String upc) {
         try (Session session = sessionFactory.openSession()) {
             org.hibernate.Query<Product> query = session.createQuery("FROM Product WHERE UPC = :upc", Product.class);
@@ -52,6 +73,12 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Retrieves a Product object by its name.
+     *
+     * @param name The name of the Product to retrieve.
+     * @return The Product object if found, otherwise null.
+     */
     public Product findByName(String name) {
         try (Session session = sessionFactory.openSession()) {
             Query<Product> query = session.createQuery("FROM Product WHERE name = :name", Product.class);
@@ -63,6 +90,11 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Retrieves all Product objects from the database.
+     *
+     * @return A list of all Product objects.
+     */
     public List<Product> findAll() {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -76,6 +108,12 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Checks if a Product with the specified UPC exists in the database.
+     *
+     * @param upc The UPC to check.
+     * @return true if a Product with the specified UPC exists, false otherwise.
+     */
     public boolean existsByUPC(String upc) {
         try (Session session = sessionFactory.openSession()) {
             Query<Long> query = session.createQuery("SELECT COUNT(*) FROM Product WHERE UPC = :upc", Long.class);
@@ -88,6 +126,12 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Checks if a Product with the specified name exists in the database.
+     *
+     * @param name The name to check.
+     * @return true if a Product with the specified name exists, false otherwise.
+     */
     public boolean existsByName(String name) {
         try (Session session = sessionFactory.openSession()) {
             Query<Long> query = session.createQuery("SELECT COUNT(*) FROM Product WHERE name = :name", Long.class);
@@ -100,6 +144,11 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Saves a Product object to the database.
+     *
+     * @param product The Product object to save.
+     */
     public void save(Product product) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -114,6 +163,11 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Updates a Product object in the database.
+     *
+     * @param product The Product object to update.
+     */
     public void update(Product product) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -128,26 +182,13 @@ public class Product_DAO {
         }
     }
 
-    public void updateQuantity(Product product, int newQuantity) {
-        Transaction tx = null;
-        try (Session session = sessionFactory.openSession()) {
-            tx = session.beginTransaction();
-            Product managedProduct = session.get(Product.class, product.getId());
-            if (managedProduct != null) {
-                managedProduct.setQuantity(newQuantity);
-                session.update(managedProduct);
-            } else {
-                System.err.println("Product with ID " + product.getId() + " not found.");
-            }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Processes a purchase transaction for a Product by decrementing its quantity.
+     *
+     * @param productId The identifier of the Product to purchase.
+     * @param quantityToBuy The quantity to purchase.
+     * @throws RuntimeException if the Product is not found, or if there's not enough quantity available.
+     */
     public void purchaseProduct(int productId, int quantityToBuy) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -168,7 +209,6 @@ public class Product_DAO {
             product.setQuantity(availableQuantity - quantityToBuy);
             session.update(product);
 
-
             tx.commit();
         } catch (RuntimeException e) {
             if (tx != null) {
@@ -184,6 +224,13 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Increases the quantity of a Product by adding a specified amount.
+     *
+     * @param productId The identifier of the Product to add quantity to.
+     * @param addAmount The amount to add to the Product's quantity.
+     * @throws RuntimeException if the Product is not found or if adding amount fails.
+     */
     public void addQuantity(int productId, int addAmount) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -209,31 +256,11 @@ public class Product_DAO {
         }
     }
 
-    public void decrementQuantity(Product product, int quantityToRemove) {
-        Transaction tx = null;
-        try (Session session = sessionFactory.openSession()) {
-            tx = session.beginTransaction();
-            Product managedProduct = session.get(Product.class, product.getId());
-            if (managedProduct != null) {
-                int currentQuantity = managedProduct.getQuantity();
-                if (currentQuantity >= quantityToRemove) {
-                    managedProduct.setQuantity(currentQuantity - quantityToRemove);
-                    session.update(managedProduct);
-                } else {
-                    System.err.println("Insufficient quantity to remove.");
-                }
-            } else {
-                System.err.println("Product with ID " + product.getId() + " not found.");
-            }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Deletes a Product object from the database.
+     *
+     * @param product The Product object to delete.
+     */
     public void delete(Product product) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
@@ -248,6 +275,9 @@ public class Product_DAO {
         }
     }
 
+    /**
+     * Closes the Hibernate SessionFactory.
+     */
     public void close() {
         if (sessionFactory != null) {
             sessionFactory.close();
